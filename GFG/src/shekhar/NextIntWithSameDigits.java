@@ -39,28 +39,16 @@ public class NextIntWithSameDigits {
 			}
 		}
 
-		int[] newIntArray = null;
-		if(!found){
-			newIntArray = new int[len+1];
-			newIntArray[0] = 1;
-			for(int i=0; i< len; i++){
-				newIntArray[i+1] = intArray[i];
-			}
-		}
-
 		if(found){
 			for(int i=0; i< len; i++){
 				System.out.print(intArray[i]);
 			}
 		}else{
-			for(int i=0; i<len+1; i++){
-				System.out.print(newIntArray[i]);
-			}
+			System.out.print("Not Possible");
 		}
 		System.out.println();
 		
-		if(found) return getNumber(intArray);
-		else return getNumber(newIntArray);
+		return getNumber(intArray);
 		
 	}
 
