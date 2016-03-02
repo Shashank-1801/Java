@@ -22,6 +22,8 @@ public class MainClass {
 		
 		System.out.println("######");
 		
+		sll.deleteLL();
+		
 		for(int i=0;i<30; i++){
 			int v = rndm();
 			System.out.print("v is " + v + "\t");

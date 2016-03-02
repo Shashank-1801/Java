@@ -175,4 +175,15 @@ public class SLL {
 		}
 		return head;
 	}
+	
+	public void deleteLL(){
+		SLLNode temp = head;
+		while(temp!=null){
+			SLLNode m = temp.getNext();
+			temp=null;
+			temp=m;
+		}
+		
+		head = null;
+	}
 }
