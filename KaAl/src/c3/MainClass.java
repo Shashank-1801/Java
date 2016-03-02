@@ -8,20 +8,32 @@ public class MainClass {
 		SLL sll = new SLL();
 		
 		for(int i=0;i<20; i++){
-			SLLNode n = new SLLNode(i);
 			int v = rndm();
 			System.out.print("v is " + v + " and i is " + i + "\t");
 			if(v==0){
-				sll.insertFromHead(n);
+				sll.insertFromHead(i);
 			}else if(v==1){
-				sll.insertFromTail(n);
+				sll.insertFromTail(i);
 			}else{
-				sll.insertMiddle(n, v);
-			}
-			
+				sll.insertMiddle(i, v);
+			}			
 			sll.display();
 		}
 		
+		System.out.println("######");
+		
+		for(int i=0;i<30; i++){
+			int v = rndm();
+			System.out.print("v is " + v + "\t");
+			if(v==0){
+				sll.deleteHead();
+			}else if(v==1){
+				sll.deleteTail();
+			}else{
+				sll.deleteMiddle(v);
+			}			
+			sll.display();
+		}
 	}
 	
 	public static int rndm(){
