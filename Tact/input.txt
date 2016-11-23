@@ -20,3 +20,32 @@ G(x) => H(x)
 H(x) => F(x)
 R(x) => H(x)
 R(Alice)
+
+--------------
+
+2 
+Ancestor(Liz,Billy) 
+Ancestor(Liz,Bob) 
+6 
+Mother(Liz,Charley) 
+Father(Charley,Billy) 
+((~Mother(x,y)) | Parent(x,y)) 
+((~Father(x,y)) | Parent(x,y)) 
+((~Parent(x,y)) | Ancestor(x,y)) 
+((~(Parent(x,y) & Ancestor(y,z))) | Ancestor(x,z)) 
+
+--------------
+
+3
+A(Bob)
+C(John)
+B(Bob)
+4
+(A(x)   => B(x)  )
+(C(x)=>A(x))
+C(x)
+C(John)
+
+--------------
+
+
