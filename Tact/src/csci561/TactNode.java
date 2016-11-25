@@ -46,4 +46,12 @@ public class TactNode {
 		}
 	}
 
+	public String unifiedString(String unificationContant){
+		if(!hasOperator){
+			return symbol + "(" + unificationContant+ ")";
+		}else{
+			return null;
+		}
+	}
+
 }
