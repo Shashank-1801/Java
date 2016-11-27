@@ -1,9 +1,12 @@
 package csci561;
 
+import java.util.ArrayList;
+
 public class TactNode {
 	String symbol;
-	String variable;
-	String constant;
+	ArrayList<String> variable = new ArrayList<>();
+	ArrayList<String> constant = new ArrayList<>();
+	int numberOfVariables;
 	boolean hasVariable;
 	boolean hasOperator;
 	TactNode leftSide;
@@ -49,13 +52,17 @@ public class TactNode {
 		}else{
 			String sym = getSymbol(exp);
 			String value = getParam(exp);
+			String[] values = value.split(",");
+			numberOfVariables = values.length;
 			if(value.toLowerCase().equals(value)){
 				symbol = sym;
-				variable = value;
+				for(String x : values)
+					variable.add(x);
 				hasVariable = true;
 			}else{
 				symbol = sym;
-				constant = value;
+				for(String x : values)
+					constant.add(x);
 				hasVariable = false;
 			}
 		}
@@ -68,6 +75,7 @@ public class TactNode {
 		hasOperator = true;
 	}
 
+	/*
 	public TactNode(String sym, String value) {
 		if(value.toLowerCase().equals(value)){
 			symbol = sym;
@@ -80,6 +88,23 @@ public class TactNode {
 		}
 	}
 
+
+
+
+	public String unifiedString(String unificationContant){
+		if(!hasOperator){
+			return symbol + "(" + unificationContant+ ")";
+		}else{
+			if(variable!=null){
+				return this.toString().replaceAll(variable, unificationContant);
+			}else{
+				return this.toString();
+			}
+		}
+	}
+	 */
+
+	@Override
 	public String toString(){
 		if(hasOperator){
 			if(operator == "~"){
@@ -89,21 +114,51 @@ public class TactNode {
 			}
 		}else{
 			if(hasVariable){
-				return symbol + "(" + variable + ")";
+				return symbol + "(" + getList(variable) + ")";
 			}else{
-				return symbol + "(" + constant+ ")";
+				return symbol + "(" + getList(constant)+ ")";
 			}
 		}
 	}
 
-	public String unifiedString(String unificationContant){
-		if(!hasOperator){
-			return symbol + "(" + unificationContant+ ")";
-		}else{
-			return null;
+
+	@Override
+	public boolean equals(Object object){
+		boolean isSame = false;
+		try{
+			if (object != null && object instanceof TactNode){
+				TactNode otherObject = (TactNode) object;
+				if(otherObject.hasOperator && this.operator.equals(otherObject.operator)){
+					if(this.leftSide.equals(otherObject.leftSide) && (this.rightSide.equals(otherObject.rightSide))){
+						isSame = true;
+					}
+				}else if(otherObject.hasOperator && (!this.operator.equals(otherObject.operator))){
+					return isSame;
+				}else{
+					if(this.numberOfVariables == otherObject.numberOfVariables){
+						if(this.symbol.equals(otherObject.symbol)){
+							isSame = true;
+						}
+					}
+				}
+			}
+		}catch (NullPointerException npe) {
+			return false;
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
+		return isSame;
 	}
-	
+
+	private static String getList(ArrayList<String> var){
+		String p = "";
+		for(String x : var){
+			p += x + ",";
+		}
+		p = p.substring(0, p.length()-1);
+		return p;
+	}
+
 	private static int getOperatorIndex(String exp, char operator) {
 		char[] expChar = exp.toCharArray();
 		int count = 0;
@@ -121,7 +176,7 @@ public class TactNode {
 		}
 		return -1;
 	}
-	
+
 	private static String getSymbol(String k){
 		char openB = '(';
 		int start = k.indexOf(openB);

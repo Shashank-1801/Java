@@ -1,3 +1,32 @@
+4
+D(x)
+Ancestor(Liz,Billy) 
+Ancestor(Liz,Bob) 
+Mother(Liz,Charley) 
+11
+(P(x,y)&(Q(x)&A(x)))
+((A(x)=>B(x)) => (C(x) => D(x)))
+(B(s) & C(x) )
+Mother(Liz,Charley) 
+Father(Charley,Billy) 
+((~Mother(x,y)) | Parent(x,y)) 
+((~Father(x,y)) | Parent(x,y)) 
+((~Parent(x,y)) | Ancestor(x,y)) 
+((~(Parent(x,y) & Ancestor(y,z))) | Ancestor(x,z))
+((~(Parent(x,y) & Ancestor(y,z))) & Ancestor(x,z)) 
+(A(x)=>B(x))
+
+---------------
+1
+F(John)
+6
+(A(x)=>B(x))
+(B(x)=>C(x))
+(D(x)=>E(x))
+(E(x)=>F(x))
+(C(x)=>D(x))
+(A(c)&B(c))
+------------
 5
 A(Bob)
 A(John)
@@ -11,25 +40,6 @@ G(Alice)
 C(Bob)
 G(x)
 --------------
-4
-D(x)
-Ancestor(Liz,Billy) 
-Ancestor(Liz,Bob) 
-Mother(Liz,Charley) 
-8
-((A(x)=>B(x)) => (C(x) => D(x)))
-(B(s) & C(x) )
-Mother(Liz,Charley) 
-Father(Charley,Billy) 
-((~Mother(x,y)) | Parent(x,y)) 
-((~Father(x,y)) | Parent(x,y)) 
-((~Parent(x,y)) | Ancestor(x,y)) 
-((~(Parent(x,y) & Ancestor(y,z))) | Ancestor(x,z)) 
-
-
-
----------------
-
 6 
 F(Bob) 
 H(John) 
@@ -54,9 +64,6 @@ D(John,Bob)
 R(Tom) 
 
 ---------------
-
-
-
 2 
 Ancestor(Liz,Billy) 
 Ancestor(Liz,Bob) 
@@ -95,16 +102,3 @@ D(John,Bob)
 R(Tom)
 
 --------------
-
-
-1
-F(John)
-6
-(A(x)=>B(x))
-(B(x)=>C(x))
-(D(x)=>E(x))
-(E(x)=>F(x))
-(C(x)=>D(x))
-(A(c)&B(c))
-------------
-
