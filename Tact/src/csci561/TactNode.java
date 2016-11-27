@@ -128,21 +128,29 @@ public class TactNode {
 		try{
 			if (object != null && object instanceof TactNode){
 				TactNode otherObject = (TactNode) object;
-				if(otherObject.hasOperator && this.operator.equals(otherObject.operator)){
+				if(otherObject.hasOperator && this.hasOperator && this.operator.equals(otherObject.operator)){
 					if(this.leftSide.equals(otherObject.leftSide) && (this.rightSide.equals(otherObject.rightSide))){
 						isSame = true;
 					}
-				}else if(otherObject.hasOperator && (!this.operator.equals(otherObject.operator))){
+				}else if(otherObject.hasOperator && this.hasOperator && (!this.operator.equals(otherObject.operator))){
 					return isSame;
 				}else{
 					if(this.numberOfVariables == otherObject.numberOfVariables){
 						if(this.symbol.equals(otherObject.symbol)){
-							isSame = true;
+							if(this.hasVariable && otherObject.hasVariable){
+								isSame = true;
+							}else if(this.hasVariable && !otherObject.hasVariable){
+								isSame = true;
+							}else{
+								//compare variable list and then check
+								return this.constant.equals(otherObject.constant);
+							}
 						}
 					}
 				}
 			}
 		}catch (NullPointerException npe) {
+			System.out.println("NPE");
 			return false;
 		}catch (Exception e) {
 			e.printStackTrace();

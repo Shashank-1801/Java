@@ -1,3 +1,13 @@
+2
+Ancestor(Liz,Billy)
+Ancestor(Liz, Robert)
+2
+Ancestor(Liz, Robert)
+Ancestor(Liz, x)
+
+--------------
+
+
 4
 D(x)
 Ancestor(Liz,Billy) 
