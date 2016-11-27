@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 
 public class homework {
@@ -13,7 +14,6 @@ public class homework {
 		FileInputStream fin = null;
 		FileOutputStream fout = null;
 		BufferedReader reader = null;
-		Hashtable<String, TactNode> kb = new Hashtable<>();
 		ArrayList<TactNode> kbArray = new ArrayList<>();
 		new Hashtable<>();
 		try{
@@ -39,9 +39,9 @@ public class homework {
 			}
 			System.out.println();
 
-			kb = analyse(KBEntries, kbArray);
+			analyse(KBEntries, kbArray);
 
-			printKBEntries(kb, kbArray);
+			printKBEntries(kbArray);
 
 			fout = new FileOutputStream("./output.txt");
 
@@ -71,13 +71,7 @@ public class homework {
 	}
 
 
-	private static void printKBEntries(Hashtable<String, TactNode> kb, ArrayList<TactNode> kbArray) {
-		System.out.println("\n--------- KB is ---------");
-		for(String key : kb.keySet()){
-			System.out.println(key + " : " + kb.get(key));
-		}
-		System.out.println();
-		
+	private static void printKBEntries(ArrayList<TactNode> kbArray) {
 		System.out.println("\n--------- KB Array is ---------");
 		for(int i=0; i< kbArray.size(); i++){
 			System.out.println((i+1) + " : " + kbArray.get(i));
@@ -87,29 +81,17 @@ public class homework {
 	}
 
 
-	public static Hashtable<String, TactNode> analyse(ArrayList<String> kbentries, ArrayList<TactNode> kbArray){
+	public static void analyse(ArrayList<String> kbentries, ArrayList<TactNode> kbArray){
 		//lets analyse the kb entries one by one
 		// expected operators includes: ~, (,), & , =>, |
-		Hashtable<String, TactNode> kb = new Hashtable<>();
 		for(int i=0; i<kbentries.size(); i++){
 			String k = kbentries.get(i);
-			String symbol = getSymbol(k);
-			String param = getParam(k);
-			if(symbol.isEmpty()){
-				resolveExpression(param, kb, kbArray, true);
-			}else{
-				System.out.println("String is an predicate : " + k);
-				//TODO add to tact node
-				TactNode node = new TactNode(symbol,param);
-				kb.put(symbol, node);
-				kbArray.add(node);
-			}
-
-			//TODO check if param is again a expression
+			TactNode t = new TactNode(k);
+			kbArray.add(t);
 		}
-
-		return kb;
 	}
+
+
 
 	public static String getSymbol(String k){
 		char openB = '(';
@@ -122,32 +104,46 @@ public class homework {
 	}
 
 	public static String getParam(String k){
-		char openB = '(';
-		char closeB = ')';
-		int start = k.indexOf(openB);
-		int end = k.lastIndexOf(closeB);
-		return k.substring(start+1, end).trim();
-	}
+		char[] charArray = k.toCharArray();
+		int count = 0;
+		int start = k.indexOf('(');
+		int end;
+		for(int i=start; i<k.length(); i++){
+			if(charArray[i] == '('){
+				count++;
+			}
+			if(charArray[i] == ')' && count == 1){
+				end = i;
+				return k.substring(start+1, end).trim();
 
-	public static String resolveExpression(String exp, Hashtable<String, TactNode> kb, ArrayList<TactNode> kbArray, boolean toBeAdded){
+			}
+			if(charArray[i] == ')'){
+				count--;
+			}
+		}
+		return null;
+	}
+	
+	/*
+	public static TactNode resolveExpression(TactNode exp, Hashtable<String, TactNode> kb, ArrayList<TactNode> kbArray, boolean toBeAdded){
 		System.out.println("String must contain an operator, check for =>, &, |, ~ : " + exp);
-		if(containsOperator(exp, '=')){
-			int impliesAt = exp.indexOf("=");
-			String left = exp.substring(0, impliesAt).trim();
-			String right = exp.substring(impliesAt+2, exp.length()).trim();
-			if(getSymbol(left).isEmpty()){
-				left = resolveExpression(left, kb, kbArray, false);
+		if(containsOperator(exp.toString(), '=')){
+			int impliesAt = getOperatorIndex(exp.toString(), '=');
+			TactNode leftNode = exp.leftSide;
+			TactNode rightNode = exp.rightSide;
+			if(getSymbol(leftNode.toString()).isEmpty()){
+				leftNode = resolveExpression(leftNode, kb, kbArray, false);
 			}
-			if(getSymbol(right).isEmpty()){
-				right = resolveExpression(right,kb, kbArray, false);
+			if(getSymbol(rightNode.toString()).isEmpty()){
+				rightNode = resolveExpression(rightNode,kb, kbArray, false);
 			}
-			TactNode tn = new TactNode("=>", new TactNode(getSymbol(left), getParam(left)), new TactNode(getSymbol(right), getParam(right)));
-			kb.put(getSymbol(right), tn);
+			TactNode tn = new TactNode("=>", leftNode, rightNode);
+			kb.put(rightNode.symbol, tn);
 			if(toBeAdded) 
 				kbArray.add(tn);
-			return tn.toString();
+			return tn;
 		}else if(containsOperator(exp,'&')){
-			int andAt = exp.indexOf("&");
+			int andAt = getOperatorIndex(exp, '&');
 			String left = exp.substring(0, andAt).trim();
 			String right = exp.substring(andAt+1, exp.length()).trim();
 			if(getSymbol(left).isEmpty()){
@@ -164,9 +160,9 @@ public class homework {
 			}
 			return tn.toString();
 		}else if(containsOperator(exp, '|')){
-			int andAt = exp.indexOf("|");
-			String left = exp.substring(0, andAt).trim();
-			String right = exp.substring(andAt+1, exp.length()).trim();
+			int orAt = getOperatorIndex(exp, '|' );
+			String left = exp.substring(0, orAt).trim();
+			String right = exp.substring(orAt+1, exp.length()).trim();
 			if(getSymbol(left).isEmpty()){
 				left = resolveExpression(left, kb, kbArray, false);
 			}
@@ -179,8 +175,8 @@ public class homework {
 				kbArray.add(tn);
 			return tn.toString();
 		}else if(containsOperator(exp, '~')){
-			int andAt = exp.indexOf("~");
-			String right = exp.substring(andAt+1, exp.length()).trim();
+			int notAt = getOperatorIndex(exp, '~');
+			String right = exp.substring(notAt+1, exp.length()).trim();
 
 			if(getSymbol(right).isEmpty()){
 				right = resolveExpression(right,kb, kbArray, false);
@@ -197,6 +193,8 @@ public class homework {
 		}
 	}
 
+	*/
+	
 	private static boolean containsOperator(String exp, char operator) {
 		char[] expChar = exp.toCharArray();
 		int count = 0;
@@ -215,15 +213,39 @@ public class homework {
 		return false;
 	}
 
+	private static int getOperatorIndex(String exp, char operator) {
+		char[] expChar = exp.toCharArray();
+		int count = 0;
+		for(int i=0; i<exp.length(); i++){
+			if(expChar[i] == '('){
+				count++;
+			}
+			if(expChar[i] == ')'){
+				count--;
+			}
+
+			if(count == 0 && (expChar[i] == operator)){
+				return i;
+			}
+		}
+		return -1;
+	}
+
 
 	public static boolean isTrue(String q, ArrayList<TactNode> kbArray) throws Exception{
 		String sym = getSymbol(q);
 		String param = getParam(q);
+		//System.out.println("Looking for symbol : " + sym );
 		TactNode tn = null;
+		boolean[] done = new boolean[kbArray.size()];
+		Arrays.fill(done, false);
 		for(int i=0; i<kbArray.size(); i++){
 			// find a way to match symbol
-			if(findSymbol(kbArray.get(i), kbArray, sym)){
+			if((!done[i]) & findSymbol(kbArray.get(i), i, kbArray, done, sym)){
 				tn = kbArray.get(i);
+				//System.out.println("Found something " + tn.toString());
+				done[i] = true;
+				break;
 			}
 		}
 		if(tn == null){
@@ -252,9 +274,13 @@ public class homework {
 	}
 
 
-	private static boolean findSymbol(TactNode t, ArrayList<TactNode> kbArray, String symbol) {
+	private static boolean findSymbol(TactNode t, int i, ArrayList<TactNode> kbArray, boolean[] done, String symbol) {
+		if(done[i]){
+			return false;
+		}
+		done[i] = true;
 		if(t.hasOperator){
-			return findSymbol(t.rightSide, kbArray, symbol);
+			return findSymbol(t.rightSide, i, kbArray, done, symbol);
 		}else{
 			if(t.symbol.equals(symbol)){
 				return true;
