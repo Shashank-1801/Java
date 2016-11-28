@@ -11,8 +11,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
-import javax.swing.text.AbstractDocument.LeafElement;
-
 public class homework {
 	public static void main(String[] a) throws IOException{
 		FileInputStream fin = null;
@@ -32,6 +30,8 @@ public class homework {
 				//System.out.println(q);
 				queryEntries.add(q);
 			}
+			
+			
 
 			int numKB = Integer.parseInt(reader.readLine().trim());
 			System.out.println("KB entries are :");
@@ -44,6 +44,7 @@ public class homework {
 			System.out.println();
 
 			analyse(KBEntries, kbArray);
+			printKBEntries(kbArray);
 			processKB(kbArray);
 			printKBEntries(kbArray);
 
@@ -82,20 +83,50 @@ public class homework {
 			int sizeBefore = hs.size();
 			kbArray.clear();
 			kbArray.addAll(hs);
+			printKBEntries(kbArray);
+
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
 				processAND(tn, kbArray);
 			}
 			
+			hs.addAll(kbArray);
+			kbArray.clear();
+			kbArray.addAll(hs);
+			//printKBEntries(kbArray);
+			
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
 				processImplies(tn, kbArray);
 			}
+			
+			hs.addAll(kbArray);
+			kbArray.clear();
+			kbArray.addAll(hs);
+			//printKBEntries(kbArray);
+
+			for(int i=0; i<kbArray.size(); i++){
+				TactNode tn = kbArray.get(i);
+				processOR(tn, kbArray);
+			}
+			
+			hs.addAll(kbArray);
+			kbArray.clear();
+			kbArray.addAll(hs);
+			//printKBEntries(kbArray);
+			
+			for(int i=0; i<kbArray.size(); i++){
+				TactNode tn = kbArray.get(i);
+				processNOT(tn, kbArray);
+			}
+			
 			hs.addAll(kbArray);
 			int sizeAfter = hs.size();
 			
 			if(sizeAfter==sizeBefore){
 				// can't infer anything more from this
+				kbArray.clear();
+				kbArray.addAll(hs);
 				break;
 			}
 		}
@@ -115,18 +146,67 @@ public class homework {
 	private static void processImplies(TactNode tn, ArrayList<TactNode> kbArray) {
 		if(tn.hasOperator){
 			if(tn.operator.equals("=>")){
-				if(kbArray.contains(tn.leftSide)){
+				for(int i=0; i<kbArray.size(); i++){
+					if(kbArray.get(i).equals(tn.leftSide)){
+						TactNode t = new TactNode(tn.rightSide.parenthisizedString());
+						t.unify(tn.leftSide, kbArray.get(i));
+						if(!kbArray.contains(t)){
+							kbArray.add(t);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private static void processOR(TactNode tn, ArrayList<TactNode> kbArray) {
+		if(tn.hasOperator){
+			if(tn.operator.equals("|")){
+				for(int i=0; i<kbArray.size(); i++){
+					if(kbArray.get(i).equals((negate(tn.leftSide)))){
+						TactNode t = tn.rightSide;
+						t.unify((negate(tn.leftSide)), kbArray.get(i));
+						kbArray.add(t);
+					}
+				}
+				for(int i=0; i<kbArray.size(); i++){
+					if(kbArray.get(i).equals((negate(tn.rightSide)))){
+						TactNode t = tn.leftSide;
+						t.unify((negate(tn.rightSide)), kbArray.get(i));
+						kbArray.add(t);
+					}
+				}
+			}
+		}
+	}
+	
+	private static void processNOT(TactNode tn, ArrayList<TactNode> kbArray) {
+		if(tn.hasOperator){
+			if(tn.operator.equals("~")){
+				if(tn.rightSide.hasOperator && tn.rightSide.operator.equals("~")){
 					kbArray.add(tn.rightSide);
 				}
 			}
 		}
 	}
 
+	private static TactNode negate(TactNode tn){
+		TactNode negated = null;
+		String x = "(~(";
+		x += tn.parenthisizedString() + "))";
+		negated = new TactNode(x);
+		if(negated.operator.equals("~")){
+			if(negated.rightSide.hasOperator && negated.rightSide.operator.equals("~")){
+				return tn.rightSide;
+			}
+		}
+		return negated;
+	}
 
 	private static void printKBEntries(ArrayList<TactNode> kbArray) {
 		System.out.println("\n--------- KB Array is ---------");
 		for(int i=0; i< kbArray.size(); i++){
-			System.out.println((i+1) + " : " + kbArray.get(i));
+			System.out.println((i+1) + " : " + kbArray.get(i).parenthisizedString());
 		}
 		System.out.println();
 
@@ -178,12 +258,23 @@ public class homework {
 
 
 	public static boolean isTrue(String q, ArrayList<TactNode> kbArray) throws Exception{
+		
+		// create a new copy of the KB
+		// check if the symbol exists in the KB
+		// if it does, add another sentence to KB with unification 
+		//
+		
+		ArrayList<TactNode> tempKB = new ArrayList<>();
+		tempKB.addAll(kbArray);
+		
 		TactNode query = new TactNode(q);
-		if(kbArray.contains(query)){
+		if(tempKB.contains(query)){
 			return true;
 		}
 		
-		boolean[] done = new boolean[kbArray.size()];
+		
+		
+		boolean[] done = new boolean[tempKB.size()];
 		Arrays.fill(done, false);
 		
 		

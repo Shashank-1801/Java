@@ -1,11 +1,12 @@
 package csci561;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class TactNode {
 	String symbol;
 	ArrayList<String> variable = new ArrayList<>();
-	//ArrayList<String> constant = new ArrayList<>();
 	int numberOfVariables;
 	boolean hasVariable;
 	boolean hasOperator;
@@ -44,7 +45,12 @@ public class TactNode {
 			rightSide = new TactNode(right);
 		}else if(getOperatorIndex(exp, '~') != -1){
 			int notAt = getOperatorIndex(exp.toString(), '~');
-			String right = exp.substring(notAt+1, exp.length()-1).trim();
+			String right;
+			if(notAt==0){
+				right = exp.substring(notAt+1, exp.length()).trim();
+			}else{
+				right = exp.substring(notAt+1, exp.length()-1).trim();
+			}
 			// populating fields
 			hasOperator = true;
 			operator = "~";
@@ -77,7 +83,8 @@ public class TactNode {
 			}
 		}
 	}
-
+	
+	
 	public TactNode(String op, TactNode left, TactNode right) {
 		leftSide = left;
 		rightSide = right;
@@ -85,34 +92,6 @@ public class TactNode {
 		hasOperator = true;
 	}
 
-	/*
-	public TactNode(String sym, String value) {
-		if(value.toLowerCase().equals(value)){
-			symbol = sym;
-			variable = value;
-			hasVariable = true;
-		}else{
-			symbol = sym;
-			constant = value;
-			hasVariable = false;
-		}
-	}
-
-
-
-
-	public String unifiedString(String unificationContant){
-		if(!hasOperator){
-			return symbol + "(" + unificationContant+ ")";
-		}else{
-			if(variable!=null){
-				return this.toString().replaceAll(variable, unificationContant);
-			}else{
-				return this.toString();
-			}
-		}
-	}
-	 */
 
 	@Override
 	public String toString(){
@@ -134,8 +113,14 @@ public class TactNode {
 		try{
 			if (object != null && object instanceof TactNode){
 				TactNode otherObject = (TactNode) object;
+				if(this.parenthisizedString().equals(otherObject.parenthisizedString())){
+					return true;
+				}
+				
 				if(otherObject.hasOperator && this.hasOperator && this.operator.equals(otherObject.operator)){
-					if(this.leftSide.equals(otherObject.leftSide) && (this.rightSide.equals(otherObject.rightSide))){
+					if(this.leftSide == null && otherObject.leftSide == null && (this.rightSide.equals(otherObject.rightSide))){
+						isSame = true;
+					}else if(this.leftSide.equals(otherObject.leftSide) && (this.rightSide.equals(otherObject.rightSide))){
 						isSame = true;
 					}
 				}else if(otherObject.hasOperator && this.hasOperator && (!this.operator.equals(otherObject.operator))){
@@ -197,6 +182,10 @@ public class TactNode {
 			if(count == 1 && (expChar[i] == operator)){
 				return i;
 			}
+			
+			if(count==0 && operator == '~' &&(expChar[i] == operator)){
+				return i;
+			}
 		}
 		return -1;
 	}
@@ -230,6 +219,66 @@ public class TactNode {
 			}
 		}
 		return null;
+	}
+	
+	public String parenthisizedString(){
+		if(hasOperator){
+			if(operator == "~"){
+				return   operator +  rightSide.parenthisizedString();
+			}else{
+				return  "("  + leftSide.parenthisizedString() + operator + rightSide.parenthisizedString() + ")";
+			}
+		}else{
+			return symbol + "(" + getList(variable) + ")";
+		}
+	}
+	
+	public TactNode unify(TactNode match, TactNode otherNode){
+		HashMap<String, String> map = new HashMap<>();
+		TactNode nNode = this;
+		if(!match.hasOperator && !otherNode.hasOperator){
+			ArrayList<String> l1 = match.variable;
+			ArrayList<String> l2 = otherNode.variable;
+			
+			for(int i=0; i<l1.size(); i++){
+				String a = l1.get(i);
+				String b = l2.get(i);
+				if(isVariable(a)){
+					map.put(a, b);
+				}
+				if(isVariable(b)){
+					map.put(b, a);
+				}
+			}
+			
+			ArrayList<String> newVariable = new ArrayList<>();
+			
+			for(int i=0; i<variable.size(); i++){
+				String v = map.get(variable.get(i));
+				if(v==null){
+					newVariable.add(variable.get(i));
+				}else{
+					newVariable.add(v);
+				}
+			}
+			
+			nNode.variable = newVariable;
+			nNode.hasVariable = false;
+			Arrays.fill(nNode.isConstant, false);
+			for(int i=0; i<nNode.variable.size(); i++){
+				if(nNode.variable.get(i).toLowerCase().equals(nNode.variable.get(i))){
+					hasVariable = true;
+				}else{
+					isConstant[i] = true;
+				}
+			}
+		}
+		return nNode;
+	}
+	
+	
+	public boolean isVariable(String s){
+		return s.toLowerCase().equals(s);
 	}
 
 
