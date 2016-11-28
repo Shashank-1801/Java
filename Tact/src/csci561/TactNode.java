@@ -5,13 +5,14 @@ import java.util.ArrayList;
 public class TactNode {
 	String symbol;
 	ArrayList<String> variable = new ArrayList<>();
-	ArrayList<String> constant = new ArrayList<>();
+	//ArrayList<String> constant = new ArrayList<>();
 	int numberOfVariables;
 	boolean hasVariable;
 	boolean hasOperator;
 	TactNode leftSide;
 	TactNode rightSide;
 	String operator;
+	boolean[] isConstant;
 
 	public TactNode(String exp){
 		if(getOperatorIndex(exp, '=') != -1){
@@ -54,16 +55,25 @@ public class TactNode {
 			String value = getParam(exp);
 			String[] values = value.split(",");
 			numberOfVariables = values.length;
+			isConstant = new boolean[numberOfVariables];
+			symbol = sym;
 			if(value.toLowerCase().equals(value)){
-				symbol = sym;
+				// all variables, no constants
 				for(String x : values)
-					variable.add(x);
+					variable.add(x.trim());
 				hasVariable = true;
 			}else{
-				symbol = sym;
-				for(String x : values)
-					constant.add(x);
+				// may have variable and/or constants
 				hasVariable = false;
+				for(int i=0; i<numberOfVariables; i++){
+					variable.add(values[i].trim());
+					if(values[i].toLowerCase().equals(values[i])){
+						hasVariable = true;
+					}else{
+						isConstant[i] = true;
+					}
+				}
+
 			}
 		}
 	}
@@ -113,11 +123,7 @@ public class TactNode {
 				return leftSide.toString() + operator + rightSide.toString();
 			}
 		}else{
-			if(hasVariable){
-				return symbol + "(" + getList(variable) + ")";
-			}else{
-				return symbol + "(" + getList(constant)+ ")";
-			}
+			return symbol + "(" + getList(variable) + ")";
 		}
 	}
 
@@ -139,11 +145,21 @@ public class TactNode {
 						if(this.symbol.equals(otherObject.symbol)){
 							if(this.hasVariable && otherObject.hasVariable){
 								isSame = true;
-							}else if(this.hasVariable && !otherObject.hasVariable){
-								isSame = true;
+							}else if(!this.hasVariable && !otherObject.hasVariable){
+								return this.variable.equals(otherObject.variable);
 							}else{
 								//compare variable list and then check
-								return this.constant.equals(otherObject.constant);
+								for(int i=0; i<numberOfVariables; i++){
+									//compare variables and constants
+									String thisVar = this.variable.get(i);
+									String otherVar = otherObject.variable.get(i);
+									if(this.isConstant[i] == true && otherObject.isConstant[i] == true){
+										if(!thisVar.equals(otherVar)){
+											return false;
+										}
+									}
+								}
+								return true;
 							}
 						}
 					}

@@ -1,13 +1,37 @@
-2
-Ancestor(Liz,Billy)
-Ancestor(Liz, Robert)
-2
-Ancestor(Liz, Robert)
-Ancestor(Liz, x)
+6
+F(Bob)
+H(John)
+~H(Alice)
+~H(John)
+G(Bob)
+G(Alice)
+14
+((D(x,y) &      Q(y)) => C(x,y))
+(A(x) => H(x))
+(D(x,y) => (~H(y)))
+((B(x,y) & C(x,y)) => A(x))
+B(John,Alice)
+B(John,Bob)
+D(John,Alice)
+Q(Bob)
+D(John,Bob)
+(F(x) => G(x))
+(G(x) => H(x))
+(H(x) => F(x))
+(R(x) => H(x))
+R(Tom)
 
 --------------
+4
+Ancestor(Liz,Billy)
+Ancestor(Ram,Shyam)
+Ancestor(Billy,Robert)
+Ancestor(Liz, Robert)
+2
+Ancestor(Liz, x)
+Ancestor(x, Robert)
 
-
+--------------
 4
 D(x)
 Ancestor(Liz,Billy) 
@@ -37,6 +61,7 @@ F(John)
 (C(x)=>D(x))
 (A(c)&B(c))
 ------------
+
 5
 A(Bob)
 A(John)
@@ -86,29 +111,5 @@ Father(Charley,Billy)
 ((~Mother(x,y)) | Parent(x,y)) 
 ((~Father(x,y)) | Parent(x,y)) 
 ((~Parent(x,y)) | Ancestor(x,y)) 
-
---------------
-6
-F(Bob)
-H(John)
-~H(Alice)
-~H(John)
-G(Bob)
-G(Alice)
-14
-((D(x,y) &      Q(y)) => C(x,y))
-(A(x) => H(x))
-(D(x,y) => (~H(y)))
-((B(x,y) & C(x,y)) => A(x))
-B(John,Alice)
-B(John,Bob)
-D(John,Alice)
-Q(Bob)
-D(John,Bob)
-(F(x) => G(x))
-(G(x) => H(x))
-(H(x) => F(x))
-(R(x) => H(x))
-R(Tom)
 
 --------------
