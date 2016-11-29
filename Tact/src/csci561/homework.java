@@ -83,7 +83,8 @@ public class homework {
 			int sizeBefore = hs.size();
 			kbArray.clear();
 			kbArray.addAll(hs);
-			//printKBEntries(kbArray);
+			
+			printKBEntries(kbArray, "Starting...");
 
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
@@ -93,7 +94,7 @@ public class homework {
 			hs.addAll(kbArray);
 			kbArray.clear();
 			kbArray.addAll(hs);
-			//printKBEntries(kbArray);
+			printKBEntries(kbArray, "After AND");
 			
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
@@ -103,7 +104,7 @@ public class homework {
 			hs.addAll(kbArray);
 			kbArray.clear();
 			kbArray.addAll(hs);
-			//printKBEntries(kbArray);
+			printKBEntries(kbArray, "After Implies");
 
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
@@ -113,15 +114,14 @@ public class homework {
 			hs.addAll(kbArray);
 			kbArray.clear();
 			kbArray.addAll(hs);
-			//printKBEntries(kbArray);
+			printKBEntries(kbArray, "After OR");
 			
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
 				processNOT(tn, kbArray);
 			}
 			
-			System.out.println("before rec");
-			printKBEntries(kbArray);
+			printKBEntries(kbArray, "After NOT");
 			
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
@@ -130,8 +130,7 @@ public class homework {
 					kbArray.add(t);
 				}
 			}
-			System.out.println("after rec");
-			printKBEntries(kbArray);
+			printKBEntries(kbArray, "After Recursive");
 			
 			hs.addAll(kbArray);
 			int sizeAfter = hs.size();
@@ -226,6 +225,15 @@ public class homework {
 		System.out.println();
 
 	}
+	
+	private static void printKBEntries(ArrayList<TactNode> kbArray, String msg) {
+		System.out.println("\n--------- " + msg + " ---------");
+		for(int i=0; i< kbArray.size(); i++){
+			System.out.println((i+1) + " : " + kbArray.get(i).parenthisizedString());
+		}
+		System.out.println();
+
+	}
 
 
 	public static void analyse(ArrayList<String> kbentries, ArrayList<TactNode> kbArray){
@@ -296,7 +304,7 @@ public class homework {
 				TactNode left = processRec(tn.leftSide, kbArray);
 				TactNode ri = tn.rightSide;
 				if(left!=null){
-					ri.unify(left, tn.leftSide);
+					ri = ri.unify(left, tn.leftSide);
 					return new TactNode(ri.parenthisizedString());
 				}else{
 					return null;
@@ -344,16 +352,7 @@ public class homework {
 		
 		boolean[] done = new boolean[tempKB.size()];
 		Arrays.fill(done, false);
-		
-//		if(query.hasOperator){
-//			String op = query.operator;
-//			if()
-//		}
-//		
-//		
-//		
-//		
-		
+				
 		return false;
 		
 		

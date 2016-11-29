@@ -86,12 +86,12 @@ public class TactNode {
 	}
 
 
-	public TactNode(String op, TactNode left, TactNode right) {
-		leftSide = left;
-		rightSide = right;
-		operator = op;
-		hasOperator = true;
-	}
+//	public TactNode(String op, TactNode left, TactNode right) {
+//		leftSide = left;
+//		rightSide = right;
+//		operator = op;
+//		hasOperator = true;
+//	}
 
 
 	@Override
@@ -152,7 +152,7 @@ public class TactNode {
 				}
 			}
 		}catch (NullPointerException npe) {
-			System.out.println("NPE");
+			//System.out.println("NPE");
 			return false;
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -269,10 +269,10 @@ public class TactNode {
 			nNode.variable = newVariable;
 			if(nNode.hasOperator){
 				if(nNode.leftSide!=null){
-					nNode.leftSide.unify(match, otherNode);
+					nNode.leftSide = nNode.leftSide.unify(match, otherNode);
 				}
 				if(nNode.rightSide!=null){
-					nNode.rightSide.unify(match, otherNode);
+					nNode.rightSide = nNode.rightSide.unify(match, otherNode);
 				}
 			}else{
 				Arrays.fill(nNode.isConstant, false);
@@ -317,7 +317,7 @@ public class TactNode {
 				}
 			}
 		}
-		return nNode;
+		return new TactNode(nNode.parenthisizedString());
 	}
 
 
