@@ -83,7 +83,7 @@ public class homework {
 			int sizeBefore = hs.size();
 			kbArray.clear();
 			kbArray.addAll(hs);
-			printKBEntries(kbArray);
+			//printKBEntries(kbArray);
 
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
@@ -120,6 +120,19 @@ public class homework {
 				processNOT(tn, kbArray);
 			}
 			
+			System.out.println("before rec");
+			printKBEntries(kbArray);
+			
+			for(int i=0; i<kbArray.size(); i++){
+				TactNode tn = kbArray.get(i);
+				TactNode t = processRec(tn, kbArray);
+				if(t!=null && !kbArray.contains(t)){
+					kbArray.add(t);
+				}
+			}
+			System.out.println("after rec");
+			printKBEntries(kbArray);
+			
 			hs.addAll(kbArray);
 			int sizeAfter = hs.size();
 			
@@ -149,9 +162,9 @@ public class homework {
 				for(int i=0; i<kbArray.size(); i++){
 					if(kbArray.get(i).equals(tn.leftSide)){
 						TactNode t = new TactNode(tn.rightSide.parenthisizedString());
-						t.unify(tn.leftSide, kbArray.get(i));
-						if(!kbArray.contains(t)){
-							kbArray.add(t);
+						TactNode p = t.unify(tn.leftSide, kbArray.get(i));
+						if(!kbArray.contains(p)){
+							kbArray.add(p);
 						}
 					}
 				}
@@ -165,15 +178,17 @@ public class homework {
 				for(int i=0; i<kbArray.size(); i++){
 					if(kbArray.get(i).equals((negate(tn.leftSide)))){
 						TactNode t = tn.rightSide;
-						t.unify((negate(tn.leftSide)), kbArray.get(i));
-						kbArray.add(t);
+						TactNode p = t.unify((negate(tn.leftSide)), kbArray.get(i));
+						if(!kbArray.contains(p))
+							kbArray.add(p);
 					}
 				}
 				for(int i=0; i<kbArray.size(); i++){
 					if(kbArray.get(i).equals((negate(tn.rightSide)))){
 						TactNode t = tn.leftSide;
-						t.unify((negate(tn.rightSide)), kbArray.get(i));
-						kbArray.add(t);
+						TactNode p = t.unify((negate(tn.rightSide)), kbArray.get(i));
+						if(!kbArray.contains(p))
+							kbArray.add(p);
 					}
 				}
 			}
@@ -256,7 +271,62 @@ public class homework {
 		return null;
 	}
 
-
+	
+	public static TactNode processRec(TactNode tn, ArrayList<TactNode> kbArray){
+		String exp = tn.parenthisizedString();
+		if(tn.hasOperator){
+			String op = tn.operator;
+			if(op.equals("&")){
+				TactNode left = processRec(tn.leftSide, kbArray);
+				TactNode right = processRec(tn.rightSide, kbArray);
+				if(left!=null && right!=null){
+					return new TactNode( "("  + left.parenthisizedString() + tn.operator + right.parenthisizedString() + ")");
+				}else{
+					return null;
+				}
+			}else if(op.equals("|")){
+				TactNode left = processRec(tn.leftSide, kbArray);
+				TactNode right = processRec(tn.rightSide, kbArray);
+				if(left!=null && right!=null){
+					return new TactNode( "("  + tn.leftSide.parenthisizedString() + tn.operator + tn.rightSide.parenthisizedString() + ")");
+				}else{
+					return null;
+				}
+			}else if(op.equals("=>")){
+				TactNode left = processRec(tn.leftSide, kbArray);
+				TactNode ri = tn.rightSide;
+				if(left!=null){
+					ri.unify(left, tn.leftSide);
+					return new TactNode(ri.parenthisizedString());
+				}else{
+					return null;
+				}
+			}else if(op.equals("~")){
+				TactNode right = processRec(tn.rightSide, kbArray);
+				if(right!=null){
+					return null;
+				}else{
+					return right;
+				}
+			}else{
+				System.out.println("Thats odd");
+				return null;
+			}
+		}else{
+			// doesn't contain operator
+			for(int i=0; i<kbArray.size(); i++){
+				if(kbArray.get(i).equals(tn)){
+					TactNode t = new TactNode(tn.parenthisizedString());
+					TactNode p = t.unify(tn, kbArray.get(i));
+					p = new TactNode(p.parenthisizedString());
+					return p;
+				}
+			}
+		}
+		return null;
+	}
+	
+	
 	public static boolean isTrue(String q, ArrayList<TactNode> kbArray) throws Exception{
 		
 		// create a new copy of the KB
@@ -272,11 +342,17 @@ public class homework {
 			return true;
 		}
 		
-		
-		
 		boolean[] done = new boolean[tempKB.size()];
 		Arrays.fill(done, false);
 		
+//		if(query.hasOperator){
+//			String op = query.operator;
+//			if()
+//		}
+//		
+//		
+//		
+//		
 		
 		return false;
 		

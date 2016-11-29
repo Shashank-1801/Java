@@ -16,6 +16,7 @@ public class TactNode {
 	boolean[] isConstant;
 
 	public TactNode(String exp){
+		exp = exp.trim();
 		if(getOperatorIndex(exp, '=') != -1){
 			int impliesAt = getOperatorIndex(exp.toString(), '=');
 			String left = exp.substring(1, impliesAt).trim();
@@ -37,7 +38,7 @@ public class TactNode {
 		}else if(getOperatorIndex(exp, '|') != -1){
 			int orAt = getOperatorIndex(exp.toString(), '|');
 			String left = exp.substring(1, orAt).trim();
-			String right = exp.substring(orAt+1, exp.length()-1).trim();
+			String right = exp.substring(orAt+1, exp.trim().length()-1).trim();
 			// populating fields
 			hasOperator = true;
 			operator = "|";
@@ -83,8 +84,8 @@ public class TactNode {
 			}
 		}
 	}
-	
-	
+
+
 	public TactNode(String op, TactNode left, TactNode right) {
 		leftSide = left;
 		rightSide = right;
@@ -116,7 +117,7 @@ public class TactNode {
 				if(this.parenthisizedString().equals(otherObject.parenthisizedString())){
 					return true;
 				}
-				
+
 				if(otherObject.hasOperator && this.hasOperator && this.operator.equals(otherObject.operator)){
 					if(this.leftSide == null && otherObject.leftSide == null && (this.rightSide.equals(otherObject.rightSide))){
 						isSame = true;
@@ -182,7 +183,7 @@ public class TactNode {
 			if(count == 1 && (expChar[i] == operator)){
 				return i;
 			}
-			
+
 			if(count==0 && operator == '~' &&(expChar[i] == operator)){
 				return i;
 			}
@@ -220,7 +221,7 @@ public class TactNode {
 		}
 		return null;
 	}
-	
+
 	public String parenthisizedString(){
 		if(hasOperator){
 			if(operator == "~"){
@@ -232,14 +233,17 @@ public class TactNode {
 			return symbol + "(" + getList(variable) + ")";
 		}
 	}
-	
+
 	public TactNode unify(TactNode match, TactNode otherNode){
 		HashMap<String, String> map = new HashMap<>();
-		TactNode nNode = this;
+		if(match.parenthisizedString().equals(this.parenthisizedString()) && otherNode.parenthisizedString().equals(this.parenthisizedString())){
+			return this;
+		}
+		TactNode nNode = new TactNode(this.parenthisizedString());
 		if(!match.hasOperator && !otherNode.hasOperator){
 			ArrayList<String> l1 = match.variable;
 			ArrayList<String> l2 = otherNode.variable;
-			
+
 			for(int i=0; i<l1.size(); i++){
 				String a = l1.get(i);
 				String b = l2.get(i);
@@ -250,9 +254,9 @@ public class TactNode {
 					map.put(b, a);
 				}
 			}
-			
+
 			ArrayList<String> newVariable = new ArrayList<>();
-			
+
 			for(int i=0; i<variable.size(); i++){
 				String v = map.get(variable.get(i));
 				if(v==null){
@@ -261,25 +265,87 @@ public class TactNode {
 					newVariable.add(v);
 				}
 			}
-			
+
 			nNode.variable = newVariable;
-			nNode.hasVariable = false;
-			Arrays.fill(nNode.isConstant, false);
-			for(int i=0; i<nNode.variable.size(); i++){
-				if(nNode.variable.get(i).toLowerCase().equals(nNode.variable.get(i))){
-					hasVariable = true;
+			if(nNode.hasOperator){
+				if(nNode.leftSide!=null){
+					nNode.leftSide.unify(match, otherNode);
+				}
+				if(nNode.rightSide!=null){
+					nNode.rightSide.unify(match, otherNode);
+				}
+			}else{
+				Arrays.fill(nNode.isConstant, false);
+				for(int i=0; i<nNode.variable.size(); i++){
+					if(nNode.variable.get(i).toLowerCase().equals(nNode.variable.get(i))){
+						hasVariable = true;
+					}else{
+						isConstant[i] = true;
+					}
+				}
+			}
+		}else if(match.hasOperator && otherNode.hasOperator){
+			map = getVariableSet(match, otherNode, map);
+			
+			ArrayList<String> newVariable = new ArrayList<>();
+
+			for(int i=0; i<variable.size(); i++){
+				String v = map.get(variable.get(i));
+				if(v==null){
+					newVariable.add(variable.get(i));
 				}else{
-					isConstant[i] = true;
+					newVariable.add(v);
+				}
+			}
+
+			nNode.variable = newVariable;
+			if(nNode.hasOperator){
+				if(nNode.leftSide!=null){
+					nNode.leftSide.unify(match, otherNode);
+				}
+				if(nNode.rightSide!=null){
+					nNode.rightSide.unify(match, otherNode);
+				}
+			}else{
+				Arrays.fill(nNode.isConstant, false);
+				for(int i=0; i<nNode.variable.size(); i++){
+					if(nNode.variable.get(i).toLowerCase().equals(nNode.variable.get(i))){
+						hasVariable = true;
+					}else{
+						isConstant[i] = true;
+					}
 				}
 			}
 		}
 		return nNode;
 	}
-	
-	
+
+
 	public boolean isVariable(String s){
 		return s.toLowerCase().equals(s);
 	}
+	
+	public HashMap<String, String> getVariableSet(TactNode t1, TactNode t2, HashMap<String, String> map){
+		if(!t1.hasOperator){
+			ArrayList<String> l1 = t1.variable;
+			ArrayList<String> l2 = t2.variable;
 
+			for(int i=0; i<l1.size(); i++){
+				String a = l1.get(i);
+				String b = l2.get(i);
+				if(isVariable(a)){
+					map.put(a, b);
+				}
+				if(isVariable(b)){
+					map.put(b, a);
+				}
+			}
+		}else{
+			getVariableSet(t1.leftSide, t2.leftSide, map);
+			getVariableSet(t1.rightSide, t2.rightSide, map);
+		}
+		
+		return map;	
+	}
 
 }
