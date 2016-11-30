@@ -48,6 +48,7 @@ public class homework {
 			processKB(kbArray);
 			printKBEntries(kbArray);
 
+			
 			fout = new FileOutputStream("./output.txt");
 
 			for(int i=0; i<queryEntries.size(); i++){
@@ -84,7 +85,13 @@ public class homework {
 			kbArray.clear();
 			kbArray.addAll(hs);
 			
-			printKBEntries(kbArray, "Starting...");
+			
+//			for(int i=0; i<kbArray.size(); i++){
+//				TactNode t = kbArray.get(i);
+//				getConstantList(t);
+//				System.out.println();
+//			}
+//			printKBEntries(kbArray, "Starting...");
 
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
@@ -94,7 +101,13 @@ public class homework {
 			hs.addAll(kbArray);
 			kbArray.clear();
 			kbArray.addAll(hs);
-			printKBEntries(kbArray, "After AND");
+			
+//			for(int i=0; i<kbArray.size(); i++){
+//				TactNode t = kbArray.get(i);
+//				getConstantList(t);
+//				System.out.println();
+//			}
+//			printKBEntries(kbArray, "After AND");
 			
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
@@ -104,7 +117,13 @@ public class homework {
 			hs.addAll(kbArray);
 			kbArray.clear();
 			kbArray.addAll(hs);
-			printKBEntries(kbArray, "After Implies");
+			
+//			for(int i=0; i<kbArray.size(); i++){
+//				TactNode t = kbArray.get(i);
+//				getConstantList(t);
+//				System.out.println();
+//			}
+//			printKBEntries(kbArray, "After Implies");
 
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
@@ -114,14 +133,25 @@ public class homework {
 			hs.addAll(kbArray);
 			kbArray.clear();
 			kbArray.addAll(hs);
-			printKBEntries(kbArray, "After OR");
+			
+//			for(int i=0; i<kbArray.size(); i++){
+//				TactNode t = kbArray.get(i);
+//				getConstantList(t);
+//				System.out.println();
+//			}
+//			printKBEntries(kbArray, "After OR");
 			
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
 				processNOT(tn, kbArray);
 			}
 			
-			printKBEntries(kbArray, "After NOT");
+//			for(int i=0; i<kbArray.size(); i++){
+//				TactNode t = kbArray.get(i);
+//				getConstantList(t);
+//				System.out.println();
+//			}
+//			printKBEntries(kbArray, "After NOT");
 			
 			for(int i=0; i<kbArray.size(); i++){
 				TactNode tn = kbArray.get(i);
@@ -130,7 +160,13 @@ public class homework {
 					kbArray.add(t);
 				}
 			}
-			printKBEntries(kbArray, "After Recursive");
+			
+//			for(int i=0; i<kbArray.size(); i++){
+//				TactNode t = kbArray.get(i);
+//				getConstantList(t);
+//				System.out.println();
+//			}
+//			printKBEntries(kbArray, "After Recursive");
 			
 			hs.addAll(kbArray);
 			int sizeAfter = hs.size();
@@ -149,8 +185,10 @@ public class homework {
 	private static void processAND(TactNode tn, ArrayList<TactNode> kbArray) {
 		if(tn.hasOperator){
 			if(tn.operator.equals("&")){
-				kbArray.add(tn.leftSide);
-				kbArray.add(tn.rightSide);
+				if(!kbArray.contains(tn.leftSide))
+					kbArray.add(tn.leftSide);
+				if(!kbArray.contains(tn.rightSide))
+					kbArray.add(tn.rightSide);
 			}
 		}
 	}
@@ -198,7 +236,8 @@ public class homework {
 		if(tn.hasOperator){
 			if(tn.operator.equals("~")){
 				if(tn.rightSide.hasOperator && tn.rightSide.operator.equals("~")){
-					kbArray.add(tn.rightSide);
+					if(!kbArray.contains(tn.rightSide))
+						kbArray.add(tn.rightSide);
 				}
 			}
 		}
@@ -242,6 +281,8 @@ public class homework {
 		for(int i=0; i<kbentries.size(); i++){
 			String k = kbentries.get(i);
 			TactNode t = new TactNode(k);
+			getConstantList(t);
+			System.out.println();
 			kbArray.add(t);
 		}
 	}
@@ -341,7 +382,7 @@ public class homework {
 		// check if the symbol exists in the KB
 		// if it does, add another sentence to KB with unification 
 		//
-		
+			
 		ArrayList<TactNode> tempKB = new ArrayList<>();
 		tempKB.addAll(kbArray);
 		
@@ -353,14 +394,65 @@ public class homework {
 		boolean[] done = new boolean[tempKB.size()];
 		Arrays.fill(done, false);
 				
-		return false;
+		ArrayList<TactNode> potentialResults = new ArrayList<>();
 		
+		for(int i=0; i<kbArray.size(); i++){
+			TactNode k = tempKB.get(i);
+			TactNode match = findQuery(k, query);
+			if(match != null){
+				TactNode x = k.unify(match, query);
+				if(!isInKBString(x, tempKB)){
+					//System.out.println("Adding to temp KB from line " + i + " : " + x.parenthisizedString());
+					tempKB.add(x);
+					potentialResults.add(x);
+				}
+			}	
+		}
 		
+		//printKBEntries(tempKB);
+		processKB(tempKB);
+		//printKBEntries(tempKB);
+		
+		if(tempKB.contains(query)){
+			return true;
+		}
+		
+		// TODO check how the query returned TRUE for both cases
+		
+		for(int i=0; i<potentialResults.size(); i++){
+			TactNode p = potentialResults.get(i);
+			if(p.hasOperator){
+				if(p.leftSide.parenthisizedString().equals(query.parenthisizedString())){
+					if(p.operator.equals("|")){
+						if(isTrue(negate(p.rightSide).parenthisizedString(), tempKB)){
+							return true;
+						}
+					}
+					if(p.operator.equals("&")){
+						if(isTrue(negate(p.rightSide).parenthisizedString(), tempKB)){
+							return true;
+						}
+					}
+				}
+				if(p.rightSide.parenthisizedString().equals(query.parenthisizedString())){
+					if(p.operator.equals("|")){
+						if(!isTrue(p.leftSide.parenthisizedString(), tempKB)){
+							return true;
+						}
+					}
+					if(p.operator.equals("&")){
+						if(isTrue(p.rightSide.parenthisizedString(), tempKB)){
+							return true;
+						}
+					}
+				}
+				
+				
+			}
+		}
 		
 		
 		/*
-		String sym = getSymbol(q);
-		String param = getParam(q);
 		//System.out.println("Looking for symbol : " + sym );
 		TactNode tn = null;
 		for(int i=0; i<kbArray.size(); i++){
@@ -396,25 +488,72 @@ public class homework {
 		}
 		return false;
 	}
+*/
+		
+		return false;
 
-
-	private static boolean findSymbol(TactNode t, int i, ArrayList<TactNode> kbArray, boolean[] done, String symbol) {
-		if(done[i]){
-			return false;
-		}
-		//done[i] = true;
-		if(t.hasOperator){
-			return findSymbol(t.rightSide, i, kbArray, done, symbol);
-		}else{
-			if(t.symbol.equals(symbol)){
-				return true;
-			}else{
-				return false;
-			}
-		}*/
 	} 
+	
+	
+	public static TactNode findQuery(TactNode tn, TactNode query){
+		if(!tn.hasOperator){
+			if(tn.equals(query)){
+				return tn;
+			}else{
+				return null;
+			}
+		}else{
+			if(tn.rightSide!=null){
+				TactNode right = findQuery(tn.rightSide, query);
+				if(right!=null){
+					return right;
+				}
+			}
+			if(tn.leftSide!=null){
+				TactNode left = findQuery(tn.leftSide, query);
+				if(left!=null){
+					return left;
+				}
+			}
+		}
+		
+		
+		return null;
+	}
+
+	public static void getConstantList(TactNode t){
+		System.out.println(t.parenthisizedString());
+		if(t.hasOperator){
+			if(t.leftSide!=null)
+				getConstantList(t.leftSide);
+			if(t.rightSide!=null)
+				getConstantList(t.rightSide);
+		}else{
+			for(int i=0; i<t.numberOfVariables; i++){
+				System.out.println(t.isConstant[i]);
+			}
+			
+		}
+	}
+	
+	
+	public static boolean isInKBString(TactNode t, ArrayList<TactNode> kbArray){
+		String q = t.parenthisizedString();
+		
+		for(int i=0; i<kbArray.size(); i++){
+			TactNode k = kbArray.get(i);
+			if(q.equals(k.parenthisizedString())){
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 }
+
+
+
 
 /*
 Description clearly states that variables are single lower case characters - only one character.

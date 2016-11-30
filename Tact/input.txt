@@ -1,6 +1,25 @@
-2 
-Ancestor(Liz,Billy) 
+1
+A(Bob)
+2
+A(x) | A( y) | B(x)
+B(Bob)
+
+
+1
+Q(x)
+7
+(P(x)=>Q(x))
+((L(x)&M(x)) => P(x))
+((B(x)&L(x)) => M(x))
+((A(x)&P(x)) => L(x))
+((A(x)&B(x)) => L(x))
+A(x)
+B(x)
+
+3
 Ancestor(Liz,Bob) 
+Ancestor(Liz,Billy) 
+Mother(Eve, Adams)
 6 
 Mother(Liz,Charley) 
 Father(Charley,Billy) 

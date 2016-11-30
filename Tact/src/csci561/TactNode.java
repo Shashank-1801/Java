@@ -69,6 +69,9 @@ public class TactNode {
 				for(String x : values)
 					variable.add(x.trim());
 				hasVariable = true;
+				for(int i=0; i<numberOfVariables; i++){
+					isConstant[i] = false;
+				}
 			}else{
 				// may have variable and/or constants
 				hasVariable = false;
@@ -76,6 +79,7 @@ public class TactNode {
 					variable.add(values[i].trim());
 					if(values[i].toLowerCase().equals(values[i])){
 						hasVariable = true;
+						isConstant[i] = false;
 					}else{
 						isConstant[i] = true;
 					}
@@ -225,7 +229,7 @@ public class TactNode {
 	public String parenthisizedString(){
 		if(hasOperator){
 			if(operator == "~"){
-				return   operator +  rightSide.parenthisizedString();
+				return  "("  + operator +  rightSide.parenthisizedString() + ")";
 			}else{
 				return  "("  + leftSide.parenthisizedString() + operator + rightSide.parenthisizedString() + ")";
 			}
@@ -278,9 +282,9 @@ public class TactNode {
 				Arrays.fill(nNode.isConstant, false);
 				for(int i=0; i<nNode.variable.size(); i++){
 					if(nNode.variable.get(i).toLowerCase().equals(nNode.variable.get(i))){
-						hasVariable = true;
+						nNode.hasVariable = true;
 					}else{
-						isConstant[i] = true;
+						nNode.isConstant[i] = true;
 					}
 				}
 			}
@@ -310,9 +314,9 @@ public class TactNode {
 				Arrays.fill(nNode.isConstant, false);
 				for(int i=0; i<nNode.variable.size(); i++){
 					if(nNode.variable.get(i).toLowerCase().equals(nNode.variable.get(i))){
-						hasVariable = true;
+						nNode.hasVariable = true;
 					}else{
-						isConstant[i] = true;
+						nNode.isConstant[i] = true;
 					}
 				}
 			}
